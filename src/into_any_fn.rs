@@ -1,4 +1,4 @@
-use crate::{error::AnyFnError, AnyCell, AnyFn, RefMut};
+use crate::{error::AnyFnError, AnyCell, AnyFn, Ref, RefMut};
 use alloc::boxed::Box;
 use core::{any::Any, mem::size_of};
 
@@ -61,6 +61,23 @@ macro_rules! impl_function_combination {
         impl_function_combination!(
             [$($y),*],
             [$x, $($name),*],
+            [&$x, $($parameter),*],
+            [
+                macro_rules! $x {
+                    ($arguments:ident, $iter:ident) => {
+                        $arguments[$iter.next().unwrap_or_default()]
+                            .borrow()
+                            .downcast_ref::<$x>()
+                            .ok_or(AnyFnError::Downcast)?
+                    };
+                },
+                $($argument),*
+            ],
+            [Ref<$x>, $($type),*]
+        );
+        impl_function_combination!(
+            [$($y),*],
+            [$x, $($name),*],
             [&mut $x, $($parameter),*],
             [
                 macro_rules! $x {
@@ -103,4 +120,4 @@ macro_rules! impl_functions {
     }
 }
 
-impl_functions!(A, B, C, D, E, F, G, H);
+impl_functions!(A, B, C, D, E, F);

@@ -53,6 +53,29 @@ foo.into_any_fn().call(&[&wrap(42usize), &x]).unwrap();
 assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
 ```
 
+### Calling a function with unboxed, immutable reference, and mutable reference arguments
+
+```rust
+use any_fn::{IntoAnyFn, Ref};
+use core::{any::Any, cell::RefCell};
+
+fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
+    RefCell::new(Box::new(x))
+}
+
+fn foo(x: usize, y: &usize, z: &mut usize) {
+    *z = x + *y;
+}
+
+let x = wrap(0usize);
+
+<_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(foo)
+    .call(&[&wrap(40usize), &wrap(2usize), &x])
+    .unwrap();
+
+assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+```
+
 ## License
 
 [MIT](LICENSE)

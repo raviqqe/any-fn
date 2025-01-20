@@ -6,6 +6,7 @@ extern crate alloc;
 mod any_fn;
 mod error;
 mod into_any_fn;
+mod r#ref;
 mod ref_mut;
 
 use alloc::boxed::Box;
@@ -13,6 +14,7 @@ pub use any_fn::*;
 use core::{any::Any, cell::RefCell};
 pub use error::*;
 pub use into_any_fn::*;
+pub use r#ref::*;
 pub use ref_mut::*;
 
 type AnyCell<'a> = &'a RefCell<Box<dyn Any>>;
@@ -41,6 +43,10 @@ mod tests {
 
     fn qux(x: &mut usize, y: usize) {
         *x = y;
+    }
+
+    fn quux(x: usize, y: &usize, z: &mut usize) {
+        *z = x + *y;
     }
 
     fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
@@ -79,6 +85,17 @@ mod tests {
         let x = wrap(0usize);
 
         qux.into_any_fn().call(&[&x, &wrap(42usize)]).unwrap();
+
+        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+    }
+
+    #[test]
+    fn call_function_with_all_types() {
+        let x = wrap(0usize);
+
+        <_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(quux)
+            .call(&[&wrap(40usize), &wrap(2usize), &x])
+            .unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
     }
