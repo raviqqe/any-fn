@@ -4,7 +4,7 @@
 [![Crate](https://img.shields.io/crates/v/any-fn.svg?style=flat-square)](https://crates.io/crates/any-fn)
 [![License](https://img.shields.io/github/license/raviqqe/any-fn.svg?style=flat-square)](LICENSE)
 
-Dynamically-typed functions in Rust via [`core::any::Any`](https://doc.rust-lang.org/stable/core/any/trait.Any.html).
+Dynamically-typed functions via [`core::any::Any`](https://doc.rust-lang.org/stable/core/any/trait.Any.html) in Rust.
 
 ## Examples
 
