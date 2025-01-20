@@ -99,4 +99,4 @@ macro_rules! impl_functions {
     }
 }
 
-impl_functions!(A, B, C, D, E, F, G);
+impl_functions!(A, B, C, D, E, F, G, H);
