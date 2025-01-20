@@ -12,7 +12,6 @@ Dynamically-typed functions via [`core::any::Any`](https://doc.rust-lang.org/sta
 
 ```rust
 use any_fn::{IntoAnyFn, value};
-use core::{any::Any, cell::RefCell};
 
 const fn foo(x: usize, y: usize) -> usize {
     x + y
@@ -32,7 +31,6 @@ assert_eq!(
 
 ```rust
 use any_fn::{IntoAnyFn, value};
-use core::{any::Any, cell::RefCell};
 
 fn foo(x: usize, y: &mut usize) {
     *y = x;
@@ -49,7 +47,6 @@ assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
 
 ```rust
 use any_fn::{IntoAnyFn, Ref, value};
-use core::{any::Any, cell::RefCell};
 
 fn foo(x: usize, y: &usize, z: &mut usize) {
     *z = x + *y;
