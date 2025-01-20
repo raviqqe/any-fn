@@ -45,6 +45,10 @@ mod tests {
         *x = y;
     }
 
+    fn quux(x: usize, y: &usize, z: &mut usize) {
+        *z = x + *y;
+    }
+
     fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
         RefCell::new(Box::new(x))
     }
@@ -81,6 +85,17 @@ mod tests {
         let x = wrap(0usize);
 
         qux.into_any_fn().call(&[&x, &wrap(42usize)]).unwrap();
+
+        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+    }
+
+    #[test]
+    fn call_function_with_all_types() {
+        let x = wrap(0usize);
+
+        <_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(quux)
+            .call(&[&wrap(40usize), &wrap(2usize), &x])
+            .unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
     }
