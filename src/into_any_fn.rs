@@ -61,6 +61,23 @@ macro_rules! impl_function_combination {
         impl_function_combination!(
             [$($y),*],
             [$x, $($name),*],
+            [&$x, $($parameter),*],
+            [
+                macro_rules! $x {
+                    ($arguments:ident, $iter:ident) => {
+                        $arguments[$iter.next().unwrap_or_default()]
+                            .borrow()
+                            .downcast_ref::<$x>()
+                            .ok_or(AnyFnError::Downcast)?
+                    };
+                },
+                $($argument),*
+            ],
+            [Ref<$x>, $($type),*]
+        );
+        impl_function_combination!(
+            [$($y),*],
+            [$x, $($name),*],
             [&mut $x, $($parameter),*],
             [
                 macro_rules! $x {
