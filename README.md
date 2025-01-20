@@ -53,7 +53,7 @@ foo.into_any_fn().call(&[&wrap(42usize), &x]).unwrap();
 assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
 ```
 
-### Calling a function with unboxed, immutable refrence, and mutable reference arguments
+### Calling a function with unboxed, immutable reference, and mutable reference arguments
 
 ```rust
 use any_fn::{IntoAnyFn, Ref};
