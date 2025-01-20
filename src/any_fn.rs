@@ -3,14 +3,14 @@ use crate::{AnyCell, BoxedFunction};
 use alloc::boxed::Box;
 use core::any::Any;
 
-/// A dynamic function.
-pub struct DynamicFunction<'a> {
+/// A dynamically-typed function.
+pub struct AnyFn<'a> {
     arity: usize,
     function: BoxedFunction<'a>,
 }
 
-impl<'a> DynamicFunction<'a> {
-    /// Creates a dynamic function.
+impl<'a> AnyFn<'a> {
+    /// Creates a dynamically-typed function.
     pub fn new(arity: usize, function: BoxedFunction<'a>) -> Self {
         Self { arity, function }
     }

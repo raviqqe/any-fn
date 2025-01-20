@@ -1,20 +1,20 @@
-use crate::{error::AnyFnError, AnyCell, DynamicFunction, RefMut};
+use crate::{error::AnyFnError, AnyCell, AnyFn, RefMut};
 use alloc::boxed::Box;
 use core::{any::Any, mem::size_of};
 
 /// A native function dynamically defined.
-pub trait IntoDynamicFunction<'a, T, S> {
-    /// Converts itself into a dynamic function.
-    fn into_dynamic(self) -> DynamicFunction<'a>;
+pub trait IntoAnyFn<'a, T, S> {
+    /// Converts itself into a dynamically-typed function.
+    fn into_any_fn(self) -> AnyFn<'a>;
 }
 
 macro_rules! impl_function {
     ([$($type:ident),*], [$($ref:ident),*]) => {
-        impl<'a, T1: FnMut($($type,)* $(&mut $ref,)*) -> T2 + 'a, T2: Any, $($type: Any + Clone,)* $($ref: Any,)*> IntoDynamicFunction<'a, ($($type,)* $(RefMut<$ref>,)*), T2> for T1 {
+        impl<'a, T1: FnMut($($type,)* $(&mut $ref,)*) -> T2 + 'a, T2: Any, $($type: Any + Clone,)* $($ref: Any,)*> IntoAnyFn<'a, ($($type,)* $(RefMut<$ref>,)*), T2> for T1 {
             #[allow(non_snake_case)]
-            fn into_dynamic(mut self) -> DynamicFunction<'a> {
+            fn into_any_fn(mut self) -> AnyFn<'a> {
                 #[allow(unused, unused_mut)]
-                DynamicFunction::new(
+                AnyFn::new(
                     (&[$(size_of::<$type>(),)* $(size_of::<$ref>(),)*] as &[usize]).len(),
                     Box::new(move |arguments: &[AnyCell]| {
                         let mut iter = 0..;

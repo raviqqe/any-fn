@@ -8,10 +8,10 @@
 
 ## Examples
 
-### Calling a dynamic function with unboxed arguments
+### Calling a function with unboxed arguments
 
 ```rust
-use any_fn::IntoDynamicFunction;
+use any_fn::IntoAnyFn;
 use core::{any::Any, cell::RefCell};
 
 fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
@@ -23,7 +23,7 @@ const fn foo(x: usize, y: usize) -> usize {
 }
 
 assert_eq!(
-    *foo.into_dynamic()
+    *foo.into_any_fn()
         .call(&[&wrap(1usize), &wrap(2usize)])
         .unwrap()
         .downcast::<usize>()
@@ -32,10 +32,10 @@ assert_eq!(
 );
 ```
 
-### Calling a dynamic function with mutable reference arguments
+### Calling a function with mutable reference arguments
 
 ```rust
-use any_fn::IntoDynamicFunction;
+use any_fn::IntoAnyFn;
 use core::{any::Any, cell::RefCell};
 
 fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
@@ -48,7 +48,7 @@ fn foo(x: usize, y: &mut usize) {
 
 let x = wrap(0usize);
 
-foo.into_dynamic().call(&[&wrap(42usize), &x]).unwrap();
+foo.into_any_fn().call(&[&wrap(42usize), &x]).unwrap();
 
 assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
 ```
