@@ -1,3 +1,5 @@
+#[cfg(doc)]
+use crate::IntoAnyFn;
 use core::marker::PhantomData;
 
 /// A mutable reference.
