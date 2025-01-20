@@ -48,7 +48,7 @@ macro_rules! impl_function {
                     Box::new(move |arguments: &[AnyCell]| {
                         let mut iter = 0..;
 
-                        Ok(Box::new(self($($argument),*)))
+                        Ok(Box::new(self($($argument(arguments, &mut iter)?),*)))
                     }),
                 )
             }
@@ -69,11 +69,13 @@ macro_rules! impl_function_combination {
             [$x, $($name),*],
             [$x, $($parameter),*],
             [
-                arguments[iter.next().unwrap_or_default()]
-                    .borrow()
-                    .downcast_ref::<$x>()
-                    .ok_or(AnyFnError::Downcast)?
-                    .clone(),
+                |arguments: &[AnyCell], iter: &mut core::ops::RangeFrom<usize>| {
+                    Ok(arguments[iter.next().unwrap_or_default()]
+                        .borrow()
+                        .downcast_ref::<$x>()
+                        .ok_or(AnyFnError::Downcast)?
+                        .clone())
+                },
                 $($argument),*
             ],
             [$x, $($type),*]
