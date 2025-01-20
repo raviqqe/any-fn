@@ -8,8 +8,20 @@ pub trait IntoAnyFn<'a, T, S> {
     fn into_any_fn(self) -> AnyFn<'a>;
 }
 
+macro_rules! unwrap {
+    ($type:ident) => {
+        $type
+    };
+    (&$type:ident) => {
+        $type
+    };
+    (&mut $type:ident) => {
+        $type
+    };
+}
+
 macro_rules! impl_function {
-    ([$($type:ident),*], [$($ref_mut:ident),*]) => {
+    ($($type:ident),*) => {
         impl<'a, T1: FnMut($($type,)* $(&mut $ref_mut,)*) -> T2 + 'a, T2: Any, $($type: Any + Clone,)* $($ref_mut: Any,)*> IntoAnyFn<'a, ($($type,)* $(RefMut<$ref_mut>,)*), T2> for T1 {
             #[allow(non_snake_case)]
             fn into_any_fn(mut self) -> AnyFn<'a> {
@@ -63,7 +75,4 @@ macro_rules! impl_functions {
     }
 }
 
-impl_functions!(
-    [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z],
-    [い, ろ, は, に, お, へ, と, ち, り, ぬ, る, を]
-);
+impl_functions!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z);
