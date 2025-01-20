@@ -1,5 +1,5 @@
 use core::{
-    error,
+    error::Error,
     fmt::{self, Display, Formatter},
 };
 
@@ -12,7 +12,7 @@ pub enum AnyFnError {
     ObjectIndex,
 }
 
-impl error::Error for AnyFnError {}
+impl Error for AnyFnError {}
 
 impl Display for AnyFnError {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
