@@ -41,10 +41,10 @@ macro_rules! impl_function {
     };
 }
 
-macro_rules! impl_ref_functions {
+macro_rules! impl_ref_mut_functions {
     ([$($type:ident),*], [$first_ref:ident, $($ref:ident),*]) => {
         impl_function!([$($type),*], [$first_ref, $($ref),*]);
-        impl_ref_functions!([$($type),*], [$($ref),*]);
+        impl_ref_mut_functions!([$($type),*], [$($ref),*]);
     };
     ([$($type:ident),*], [$ref:ident]) => {
         impl_function!([$($type),*], [$ref]);
@@ -54,12 +54,12 @@ macro_rules! impl_ref_functions {
 
 macro_rules! impl_functions {
     ([$first_type:ident, $($type:ident),*], [$($ref:ident),*]) => {
-        impl_ref_functions!([$first_type, $($type),*], [$($ref),*]);
+        impl_ref_mut_functions!([$first_type, $($type),*], [$($ref),*]);
         impl_functions!([$($type),*], [$($ref),*]);
     };
     ([$type:ident], [$($ref:ident),*]) => {
-        impl_ref_functions!([$type], [$($ref),*]);
-        impl_ref_functions!([], [$($ref),*]);
+        impl_ref_mut_functions!([$type], [$($ref),*]);
+        impl_ref_mut_functions!([], [$($ref),*]);
     }
 }
 
