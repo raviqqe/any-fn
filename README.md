@@ -8,7 +8,7 @@
 
 ## Examples
 
-### Calling a dynamic function with unboxed arguments
+### Calling a function with unboxed arguments
 
 ```rust
 use any_fn::IntoAnyFn;
@@ -32,7 +32,7 @@ assert_eq!(
 );
 ```
 
-### Calling a dynamic function with mutable reference arguments
+### Calling a function with mutable reference arguments
 
 ```rust
 use any_fn::IntoAnyFn;
