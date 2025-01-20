@@ -2,7 +2,7 @@ use crate::{error::AnyFnError, AnyCell, AnyFn, RefMut};
 use alloc::boxed::Box;
 use core::{any::Any, mem::size_of};
 
-/// A native function dynamically defined.
+/// A trait to convert a statically-typed function into a dynamically-typed function.
 pub trait IntoAnyFn<'a, T, S> {
     /// Converts itself into a dynamically-typed function.
     fn into_any_fn(self) -> AnyFn<'a>;
