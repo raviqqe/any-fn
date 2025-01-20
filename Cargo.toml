@@ -1,13 +1,12 @@
 [package]
-name = "hmr"
-description = "Hot Module Reploading for Rust"
-version = "0.2.1"
+name = "any-fn"
+description = "Data structure to represent any functions"
+version = "0.1.0"
 edition = "2021"
 license-file = "./LICENSE"
-repository = "https://github.com/raviqqe/hmr"
+repository = "https://github.com/raviqqe/any-fn"
 
 [dependencies]
-notify = "8.0.0"
 
 [lints.rust]
 missing_docs = "deny"
