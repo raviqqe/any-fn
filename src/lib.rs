@@ -6,6 +6,7 @@ extern crate alloc;
 mod any_fn;
 mod error;
 mod into_any_fn;
+mod r#ref;
 mod ref_mut;
 
 use alloc::boxed::Box;
@@ -13,6 +14,7 @@ pub use any_fn::*;
 use core::{any::Any, cell::RefCell};
 pub use error::*;
 pub use into_any_fn::*;
+pub use r#ref::*;
 pub use ref_mut::*;
 
 type AnyCell<'a> = &'a RefCell<Box<dyn Any>>;
