@@ -8,44 +8,46 @@ pub trait IntoAnyFn<'a, T, S> {
     fn into_any_fn(self) -> AnyFn<'a>;
 }
 
-macro_rules! unwrap {
-    ($type:ident) => {
+macro_rules! annotate {
+    (0, $type:ident) => {
+        RefMut<$type>
+    };
+    (1, $type:ident) => {
         $type
     };
-    (&$type:ident) => {
-        $type
-    };
-    (&mut $type:ident) => {
+    (2, &$type:ident) => {
         $type
     };
 }
 
+macro_rules! argument {
+    (0, $type:ident, $arguments:ident, $iter:ident) => {
+        $arguments[$iter.next().unwrap_or_default()]
+            .borrow()
+            .downcast_ref::<$type>()
+            .ok_or(AnyFnError::Downcast)?
+            .clone()
+    };
+    (1, $type:ident, $arguments:ident, $iter:ident) => {
+        $arguments[$iter.next().unwrap_or_default()]
+            .borrow_mut()
+            .downcast_mut::<$type>()
+            .ok_or(AnyFnError::Downcast)?
+    };
+}
+
 macro_rules! impl_function {
-    ($($type:ident),*) => {
-        impl<'a, T1: FnMut($($type,)* $(&mut $ref_mut,)*) -> T2 + 'a, T2: Any, $($type: Any + Clone,)* $($ref_mut: Any,)*> IntoAnyFn<'a, ($($type,)* $(RefMut<$ref_mut>,)*), T2> for T1 {
+    ([$($type:ty),*], [$(($kind:lit, $name:ty)),*]) => {
+        impl<'a, T1: FnMut($($type),*) -> T2 + 'a, T2: Any, $($name: Any + Clone),*> IntoAnyFn<'a, $(annotate!($type)),*, T2> for T1 {
             #[allow(non_snake_case)]
             fn into_any_fn(mut self) -> AnyFn<'a> {
                 #[allow(unused, unused_mut)]
                 AnyFn::new(
-                    (&[$(size_of::<$type>(),)* $(size_of::<$ref_mut>(),)*] as &[usize]).len(),
+                    (&[$(size_of::<$type>()),*] as &[usize]).len(),
                     Box::new(move |arguments: &[AnyCell]| {
                         let mut iter = 0..;
 
-                        Ok(Box::new(self(
-                            $(
-                                arguments[iter.next().unwrap_or_default()]
-                                .borrow()
-                                .downcast_ref::<$type>()
-                                .ok_or(AnyFnError::Downcast)?
-                                .clone(),
-                            )*
-                            $(
-                                arguments[iter.next().unwrap_or_default()]
-                                .borrow_mut()
-                                .downcast_mut::<$ref_mut>()
-                                .ok_or(AnyFnError::Downcast)?,
-                            )*
-                        )))
+                        Ok(Box::new(self($(argument!($type, arguments, iter)),*)))
                     }),
                 )
             }
@@ -53,26 +55,27 @@ macro_rules! impl_function {
     };
 }
 
-macro_rules! impl_ref_mut_functions {
-    ([$($type:ident),*], [$first_ref_mut:ident, $($ref_mut:ident),*]) => {
-        impl_function!([$($type),*], [$first_ref_mut, $($ref_mut),*]);
-        impl_ref_mut_functions!([$($type),*], [$($ref_mut),*]);
+macro_rules! impl_function_combination {
+    ([$first_type:ident, $($type:ident),*], [$(($kind:literal, $name:ident)),*]) => {
+        impl_function!([$first_type, $($type),*], [($first_type), $($type),*]);
+        impl_function!([&mut $first_type, $($type),*], [$first_type, $($type),*]);
+        impl_functions!($($type),*);
     };
-    ([$($type:ident),*], [$ref_mut:ident]) => {
-        impl_function!([$($type),*], [$ref_mut]);
-        impl_function!([$($type),*], []);
+    ([], [$(($kind:literal, $name:ident)),*]) => {
+        impl_function!([$type], [$(($kind:literal, $name:ident)),*]);
+        impl_function!([&mut $type], [$(($kind:literal, $name:ident)),*]);
     }
 }
 
 macro_rules! impl_functions {
-    ([$first_type:ident, $($type:ident),*], [$($ref_mut:ident),*]) => {
-        impl_ref_mut_functions!([$first_type, $($type),*], [$($ref_mut),*]);
-        impl_functions!([$($type),*], [$($ref_mut),*]);
+    ($first_type:ident, $($type:ident),*) => {
+        impl_function_combination!([$first_type, $($type),*], []);
+        impl_functions!($($type),*);
     };
-    ([$type:ident], [$($ref_mut:ident),*]) => {
-        impl_ref_mut_functions!([$type], [$($ref_mut),*]);
-        impl_ref_mut_functions!([], [$($ref_mut),*]);
+    ($type:ident) => {
+        impl_function_combination!([$type], []);
+        impl_function_combination!([], []);
     }
 }
 
-impl_functions!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z);
+impl_functions!(A, B, C);
