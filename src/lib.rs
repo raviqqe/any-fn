@@ -44,13 +44,13 @@ mod tests {
     }
 
     #[test]
-    fn create_any_fn() {
+    fn create_function() {
         foo.into_any_fn();
         bar.into_any_fn();
     }
 
     #[test]
-    fn call_any_fn() {
+    fn call_function() {
         assert_eq!(
             *foo.into_any_fn()
                 .call(&[&wrap(1usize), &wrap(2usize)])
@@ -62,7 +62,7 @@ mod tests {
     }
 
     #[test]
-    fn call_any_fn_with_mutable_reference() {
+    fn call_function_with_mutable_reference() {
         let x = wrap(0usize);
 
         baz.into_any_fn().call(&[&wrap(42usize), &x]).unwrap();
