@@ -9,7 +9,7 @@ pub trait IntoAnyFn<'a, T, S> {
 }
 
 macro_rules! impl_function {
-    ([$($name:ident),*], [$($parameter:ty),*], [$($argument:expr),*], [$($type:ty),*]) => {
+    ([$($name:ident),*], [$($parameter:ty),*], [$($argument:item),*], [$($type:ty),*]) => {
         #[allow(unused_parens)]
         impl<'a, T1: FnMut($($parameter),*) -> T2 + 'a, T2: Any, $($name: Any + Clone),*> IntoAnyFn<'a, ($($type,)*), T2> for T1 {
             #[allow(non_snake_case)]
@@ -19,8 +19,9 @@ macro_rules! impl_function {
                     (&[$(size_of::<$name>()),*] as &[usize]).len(),
                     Box::new(move |arguments: &[AnyCell]| {
                         let mut iter = 0..;
+                        $($argument);*
 
-                        Ok(Box::new(self($($argument(arguments, &mut iter)?),*)))
+                        Ok(Box::new(self($($name!(arguments, iter)),*)))
                     }),
                 )
             }
@@ -33,7 +34,7 @@ macro_rules! impl_function_combination {
         [$x:ident$(,)? $($y:ident),*],
         [$($name:ident),* $(,)?],
         [$($parameter:ty),* $(,)?],
-        [$($argument:expr),* $(,)?],
+        [$($argument:item),* $(,)?],
         [$($type:ty),* $(,)?]
     ) => {
         impl_function_combination!(
@@ -41,12 +42,14 @@ macro_rules! impl_function_combination {
             [$x, $($name),*],
             [$x, $($parameter),*],
             [
-                |arguments: &[AnyCell], iter: &mut core::ops::RangeFrom<usize>| {
-                    Ok(arguments[iter.next().unwrap_or_default()]
-                        .borrow()
-                        .downcast_ref::<$x>()
-                        .ok_or(AnyFnError::Downcast)?
-                        .clone())
+                macro_rules! $x {
+                    ($arguments:ident, $iter:ident) => {
+                        $arguments[$iter.next().unwrap_or_default()]
+                            .borrow()
+                            .downcast_ref::<$x>()
+                            .ok_or(AnyFnError::Downcast)?
+                            .clone()
+                    };
                 },
                 $($argument),*
             ],
@@ -57,11 +60,13 @@ macro_rules! impl_function_combination {
             [$x, $($name),*],
             [&mut $x, $($parameter),*],
             [
-                |arguments: &[AnyCell], iter: &mut core::ops::RangeFrom<usize>| {
-                    arguments[iter.next().unwrap_or_default()]
-                        .borrow_mut()
-                        .downcast_mut::<$x>()
-                        .ok_or(AnyFnError::Downcast)
+                macro_rules! $x {
+                    ($arguments:ident, $iter:ident) => {
+                        $arguments[$iter.next().unwrap_or_default()]
+                            .borrow_mut()
+                            .downcast_mut::<$x>()
+                            .ok_or(AnyFnError::Downcast)?
+                    };
                 },
                 $($argument),*
             ],
@@ -72,7 +77,7 @@ macro_rules! impl_function_combination {
         [],
         [$($name:ident),* $(,)?],
         [$($parameter:ty),* $(,)?],
-        [$($argument:expr),* $(,)?],
+        [$($argument:item),* $(,)?],
         [$($type:ty),* $(,)?]
     ) => {
         impl_function!(
