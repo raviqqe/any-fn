@@ -1,4 +1,4 @@
-use crate::{error::AnyFnError, AnyCell, AnyFn, RefMut};
+use crate::{error::AnyFnError, AnyCell, AnyFn, Ref, RefMut};
 use alloc::boxed::Box;
 use core::{any::Any, mem::size_of};
 
