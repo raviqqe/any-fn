@@ -8,61 +8,78 @@ pub trait IntoAnyFn<'a, T, S> {
     fn into_any_fn(self) -> AnyFn<'a>;
 }
 
-// macro_rules! annotate {
-//     (0, $type:ident) => {
-//         RefMut<$type>
-//     };
-//     (1, $type:ident) => {
-//         $type
-//     };
-//     (2, &$type:ident) => {
-//         $type
-//     };
-// }
-//
-// macro_rules! argument {
-//     (0, $type:ident, $arguments:ident, $iter:ident) => {
-//         $arguments[$iter.next().unwrap_or_default()]
-//             .borrow()
-//             .downcast_ref::<$type>()
-//             .ok_or(AnyFnError::Downcast)?
-//             .clone()
-//     };
-//     (1, $type:ident, $arguments:ident, $iter:ident) => {
-//         $arguments[$iter.next().unwrap_or_default()]
-//             .borrow_mut()
-//             .downcast_mut::<$type>()
-//             .ok_or(AnyFnError::Downcast)?
-//     };
-// }
-//
-// macro_rules! impl_function {
-//     ([$($type:ty),*], [$(($kind:lit, $name:ty)),*]) => {
-//         impl<'a, T1: FnMut($($type),*) -> T2 + 'a, T2: Any, $($name: Any + Clone),*> IntoAnyFn<'a, $(annotate!($type)),*, T2> for T1 {
-//             #[allow(non_snake_case)]
-//             fn into_any_fn(mut self) -> AnyFn<'a> {
-//                 #[allow(unused, unused_mut)]
-//                 AnyFn::new(
-//                     (&[$(size_of::<$type>()),*] as &[usize]).len(),
-//                     Box::new(move |arguments: &[AnyCell]| {
-//                         let mut iter = 0..;
-//
-//                         Ok(Box::new(self($(argument!($type, arguments, iter)),*)))
-//                     }),
-//                 )
-//             }
-//         }
-//     };
-// }
+macro_rules! annotate {
+    (0, $type:ident) => {
+        $type
+    };
+    (1, &$type:ident) => {
+        RefMut<$type>
+    };
+}
+
+macro_rules! parameter {
+    (0, $type:ident) => {
+        $type
+    };
+    (1, &$type:ident) => {
+        &mut $type
+    };
+}
+
+macro_rules! argument {
+    (0, $type:ident, $arguments:ident, $iter:ident) => {
+        $arguments[$iter.next().unwrap_or_default()]
+            .borrow()
+            .downcast_ref::<$type>()
+            .ok_or(AnyFnError::Downcast)?
+            .clone()
+    };
+    (1, $type:ident, $arguments:ident, $iter:ident) => {
+        $arguments[$iter.next().unwrap_or_default()]
+            .borrow_mut()
+            .downcast_mut::<$type>()
+            .ok_or(AnyFnError::Downcast)?
+    };
+}
+
+macro_rules! impl_function {
+    ([$($name:ident),*], [$($parameter:ty),*], [$($argument:expr),*], [$($type:expr),*]) => {
+        #[allow(unused_parens)]
+        impl<'a, T1: FnMut($($parameter),*) -> T2 + 'a, T2: Any, $($name: Any + Clone),*> IntoAnyFn<'a, ($($type),*), T2> for T1 {
+            #[allow(non_snake_case)]
+            fn into_any_fn(mut self) -> AnyFn<'a> {
+                #[allow(unused, unused_mut)]
+                AnyFn::new(
+                    (&[$(size_of::<$name>()),*] as &[usize]).len(),
+                    Box::new(move |arguments: &[AnyCell]| {
+                        let mut iter = 0..;
+
+                        Ok(Box::new(self($($argument),*)))
+                    }),
+                )
+            }
+        }
+    };
+}
 
 macro_rules! impl_function_combination {
     ([$first_type:ident$(,)? $($type:ident),*], [$(($kind:literal, $name:ident)),* $(,)?]) => {
-        impl_function_combination!([$($type),*], [(0, $first_type), $(($kind, $name)),*]);
-        impl_function_combination!([$($type),*], [(1, $first_type), $(($kind, $name)),*]);
+        impl_function_combination!(
+            [$($type),*],
+            [(0, $first_type), $(($kind, $name)),*]
+        );
+        impl_function_combination!(
+            [$($type),*],
+            [(1, $first_type), $(($kind, $name)),*]
+        );
     };
-    ([], [$(($kind:literal, $name:ident)),* $(,)?]) => {
-        // impl_function!([$type], [$(($kind:literal, $name:ident)),*]);
-        // impl_function!([&mut $type], [$(($kind:literal, $name:ident)),*]);
+    ([], [$($name:ident),*], [$($parameter:ty),*], [$($argument:expr),*], [$($type:expr),*]) => {
+        impl_function!(
+            [$($name),*],
+            [$($parameter),*],
+            [$($argument),*],
+            [$($type),*]
+        );
     }
 }
 
