@@ -63,4 +63,4 @@ assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/raviqqe/any-fn/blob/main/LICENSE)
