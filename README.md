@@ -11,12 +11,8 @@ Dynamically-typed functions via [`core::any::Any`](https://doc.rust-lang.org/sta
 ### Calling a function with unboxed arguments
 
 ```rust
-use any_fn::IntoAnyFn;
+use any_fn::{IntoAnyFn, value};
 use core::{any::Any, cell::RefCell};
-
-fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
-    RefCell::new(Box::new(x))
-}
 
 const fn foo(x: usize, y: usize) -> usize {
     x + y
@@ -24,7 +20,7 @@ const fn foo(x: usize, y: usize) -> usize {
 
 assert_eq!(
     *foo.into_any_fn()
-        .call(&[&wrap(1usize), &wrap(2usize)])
+        .call(&[&value(1usize), &value(2usize)])
         .unwrap()
         .downcast::<usize>()
         .unwrap(),
@@ -35,20 +31,16 @@ assert_eq!(
 ### Calling a function with mutable reference arguments
 
 ```rust
-use any_fn::IntoAnyFn;
+use any_fn::{IntoAnyFn, value};
 use core::{any::Any, cell::RefCell};
-
-fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
-    RefCell::new(Box::new(x))
-}
 
 fn foo(x: usize, y: &mut usize) {
     *y = x;
 }
 
-let x = wrap(0usize);
+let x = value(0usize);
 
-foo.into_any_fn().call(&[&wrap(42usize), &x]).unwrap();
+foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
 assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
 ```
@@ -56,21 +48,17 @@ assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
 ### Calling a function with unboxed, immutable reference, and mutable reference arguments
 
 ```rust
-use any_fn::{IntoAnyFn, Ref};
+use any_fn::{IntoAnyFn, Ref, value};
 use core::{any::Any, cell::RefCell};
-
-fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
-    RefCell::new(Box::new(x))
-}
 
 fn foo(x: usize, y: &usize, z: &mut usize) {
     *z = x + *y;
 }
 
-let x = wrap(0usize);
+let x = value(0usize);
 
 <_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(foo)
-    .call(&[&wrap(40usize), &wrap(2usize), &x])
+    .call(&[&value(40usize), &value(2usize), &x])
     .unwrap();
 
 assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);

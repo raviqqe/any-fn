@@ -20,11 +20,15 @@ pub use ref_mut::*;
 type AnyCell<'a> = &'a RefCell<Box<dyn Any>>;
 type BoxedFunction<'a> = Box<dyn FnMut(&[AnyCell]) -> Result<Box<dyn Any>, AnyFnError> + 'a>;
 
+/// Creates a dynamically-typed value.
+pub fn value<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
+    RefCell::new(Box::new(x))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use alloc::{format, string::String};
-    use core::cell::RefCell;
 
     #[derive(Clone, Debug)]
     struct Foo {}
@@ -49,10 +53,6 @@ mod tests {
         *z = x + *y;
     }
 
-    fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
-        RefCell::new(Box::new(x))
-    }
-
     #[test]
     fn create_function() {
         foo.into_any_fn();
@@ -63,7 +63,7 @@ mod tests {
     fn call_function() {
         assert_eq!(
             *foo.into_any_fn()
-                .call(&[&wrap(1usize), &wrap(2usize)])
+                .call(&[&value(1usize), &value(2usize)])
                 .unwrap()
                 .downcast::<usize>()
                 .unwrap(),
@@ -73,28 +73,28 @@ mod tests {
 
     #[test]
     fn call_function_with_mutable_reference_as_last_argument() {
-        let x = wrap(0usize);
+        let x = value(0usize);
 
-        baz.into_any_fn().call(&[&wrap(42usize), &x]).unwrap();
+        baz.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
     fn call_function_with_mutable_reference_as_first_argument() {
-        let x = wrap(0usize);
+        let x = value(0usize);
 
-        qux.into_any_fn().call(&[&x, &wrap(42usize)]).unwrap();
+        qux.into_any_fn().call(&[&x, &value(42usize)]).unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
     fn call_function_with_all_types() {
-        let x = wrap(0usize);
+        let x = value(0usize);
 
         <_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(quux)
-            .call(&[&wrap(40usize), &wrap(2usize), &x])
+            .call(&[&value(40usize), &value(2usize), &x])
             .unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
