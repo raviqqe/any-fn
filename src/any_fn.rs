@@ -15,7 +15,7 @@ impl<'a> AnyFn<'a> {
         Self { arity, function }
     }
 
-    /// Returns an arity of unboxed arguments.
+    /// Returns an arity of arguments.
     pub const fn arity(&self) -> usize {
         self.arity
     }
