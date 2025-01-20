@@ -5,14 +5,14 @@ use core::{any::Any, mem::size_of};
 /// A native function dynamically defined.
 pub trait IntoAnyFn<'a, T, S> {
     /// Converts itself into a dynamic function.
-    fn into_dynamic(self) -> AnyFn<'a>;
+    fn into_any_fn(self) -> AnyFn<'a>;
 }
 
 macro_rules! impl_function {
     ([$($type:ident),*], [$($ref:ident),*]) => {
         impl<'a, T1: FnMut($($type,)* $(&mut $ref,)*) -> T2 + 'a, T2: Any, $($type: Any + Clone,)* $($ref: Any,)*> IntoAnyFn<'a, ($($type,)* $(RefMut<$ref>,)*), T2> for T1 {
             #[allow(non_snake_case)]
-            fn into_dynamic(mut self) -> AnyFn<'a> {
+            fn into_any_fn(mut self) -> AnyFn<'a> {
                 #[allow(unused, unused_mut)]
                 AnyFn::new(
                     (&[$(size_of::<$type>(),)* $(size_of::<$ref>(),)*] as &[usize]).len(),

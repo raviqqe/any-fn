@@ -45,14 +45,14 @@ mod tests {
 
     #[test]
     fn create_any_fn() {
-        foo.into_dynamic();
-        bar.into_dynamic();
+        foo.into_any_fn();
+        bar.into_any_fn();
     }
 
     #[test]
     fn call_any_fn() {
         assert_eq!(
-            *foo.into_dynamic()
+            *foo.into_any_fn()
                 .call(&[&wrap(1usize), &wrap(2usize)])
                 .unwrap()
                 .downcast::<usize>()
@@ -65,7 +65,7 @@ mod tests {
     fn call_any_fn_with_mutable_reference() {
         let x = wrap(0usize);
 
-        baz.into_dynamic().call(&[&wrap(42usize), &x]).unwrap();
+        baz.into_any_fn().call(&[&wrap(42usize), &x]).unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
     }
