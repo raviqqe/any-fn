@@ -4,7 +4,7 @@ use core::{any::Any, mem::size_of};
 
 /// A native function dynamically defined.
 pub trait IntoAnyFn<'a, T, S> {
-    /// Converts itself into a dynamic function.
+    /// Converts itself into a dynamically-typed function.
     fn into_any_fn(self) -> AnyFn<'a>;
 }
 
