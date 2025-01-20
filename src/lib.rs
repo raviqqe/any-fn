@@ -39,6 +39,10 @@ mod tests {
         *y = x;
     }
 
+    fn qux(x: &mut usize, y: usize) {
+        *x = y;
+    }
+
     fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
         RefCell::new(Box::new(x))
     }
@@ -62,10 +66,19 @@ mod tests {
     }
 
     #[test]
-    fn call_function_with_mutable_reference() {
+    fn call_function_with_mutable_reference_as_last_argument() {
         let x = wrap(0usize);
 
         baz.into_any_fn().call(&[&wrap(42usize), &x]).unwrap();
+
+        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+    }
+
+    #[test]
+    fn call_function_with_mutable_reference_as_first_argument() {
+        let x = wrap(0usize);
+
+        qux.into_any_fn().call(&[&x, &wrap(42usize)]).unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
     }
