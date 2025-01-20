@@ -8,30 +8,6 @@ pub trait IntoAnyFn<'a, T, S> {
     fn into_any_fn(self) -> AnyFn<'a>;
 }
 
-// macro_rules! annotate {
-//     (0, $type:ident) => {
-//         $type
-//     };
-//     (1, &$type:ident) => {
-//         RefMut<$type>
-//     };
-// }
-//
-// macro_rules! parameter {
-//     (0, $type:ident) => {
-//         $type
-//     };
-//     (1, &$type:ident) => {
-//         &mut $type
-//     };
-// }
-//
-// macro_rules! argument {
-//     (0, $type:ident, $arguments:ident, $iter:ident) => {};
-//     (1, $type:ident, $arguments:ident, $iter:ident) => {
-//     };
-// }
-
 macro_rules! impl_function {
     ([$($name:ident),*], [$($parameter:ty),*], [$($argument:expr),*], [$($type:ty),*]) => {
         #[allow(unused_parens)]
