@@ -5,29 +5,20 @@ use core::{
 
 /// An error.
 #[derive(Debug)]
-pub enum DynamicError {
+pub enum AnyFnError {
     /// A object downcast error.
     Downcast,
     /// A object index error.
     ObjectIndex,
-    /// A virtual machine error.
-    Vm(stak_vm::Error),
 }
 
-impl From<stak_vm::Error> for DynamicError {
-    fn from(error: stak_vm::Error) -> Self {
-        Self::Vm(error)
-    }
-}
+impl error::Error for AnyFnError {}
 
-impl error::Error for DynamicError {}
-
-impl Display for DynamicError {
+impl Display for AnyFnError {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
         match self {
             Self::Downcast => write!(formatter, "cannot downcast object"),
             Self::ObjectIndex => write!(formatter, "invalid object index"),
-            Self::Vm(error) => write!(formatter, "{error}"),
         }
     }
 }

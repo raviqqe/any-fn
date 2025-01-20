@@ -1,6 +1,7 @@
-use super::error::DynamicError;
+use super::error::AnyFnError;
+use crate::{AnyCell, BoxedFunction};
 use alloc::boxed::Box;
-use core::{any::Any, cell::RefCell};
+use core::any::Any;
 
 /// A dynamic function.
 pub struct DynamicFunction<'a> {
@@ -20,7 +21,7 @@ impl<'a> DynamicFunction<'a> {
     }
 
     /// Calls a function.
-    pub fn call(&mut self, arguments: &[AnyCell]) -> Result<Box<dyn Any>, DynamicError> {
+    pub fn call(&mut self, arguments: &[AnyCell]) -> Result<Box<dyn Any>, AnyFnError> {
         (self.function)(arguments)
     }
 }

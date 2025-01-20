@@ -6,13 +6,67 @@ extern crate alloc;
 mod any_fn;
 mod error;
 mod into_any_fn;
+mod ref_mut;
 
 use alloc::boxed::Box;
 pub use any_fn::*;
-use core::any::Any;
-use core::cell::RefCell;
+use core::{any::Any, cell::RefCell};
 pub use error::*;
 pub use into_any_fn::*;
+pub use ref_mut::*;
 
 type AnyCell<'a> = &'a RefCell<Box<dyn Any>>;
-type BoxedFunction<'a> = Box<dyn FnMut(&[AnyCell]) -> Result<Box<dyn Any>, DynamicError> + 'a>;
+type BoxedFunction<'a> = Box<dyn FnMut(&[AnyCell]) -> Result<Box<dyn Any>, AnyFnError> + 'a>;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use alloc::{format, string::String};
+    use core::cell::RefCell;
+
+    #[derive(Clone, Debug)]
+    struct Foo {}
+
+    const fn foo(x: usize, y: usize) -> usize {
+        x + y
+    }
+
+    fn bar(name: String, value: Option<Foo>) -> String {
+        format!("{name}: {value:?}")
+    }
+
+    fn baz(x: usize, y: &mut usize) {
+        *y = x;
+    }
+
+    fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
+        RefCell::new(Box::new(x))
+    }
+
+    #[test]
+    fn create_dynamic_function() {
+        foo.into_dynamic();
+        bar.into_dynamic();
+    }
+
+    #[test]
+    fn call_dynamic_function() {
+        assert_eq!(
+            *foo.into_dynamic()
+                .call(&[&wrap(1usize), &wrap(2usize)])
+                .unwrap()
+                .downcast::<usize>()
+                .unwrap(),
+            3
+        );
+    }
+
+    #[test]
+    fn call_dynamic_function_with_mutable_reference() {
+        let x: RefCell<Box<dyn Any>> = RefCell::new(Box::new(0usize));
+
+        baz.into_dynamic().call(&[&wrap(42usize), &x]).unwrap();
+
+        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+    }
+}

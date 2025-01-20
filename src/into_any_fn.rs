@@ -1,16 +1,11 @@
-use super::error::DynamicError;
-use crate::DynamicFunction;
+use crate::{error::AnyFnError, AnyCell, DynamicFunction, RefMut};
 use alloc::boxed::Box;
-use core::{any::Any, cell::RefCell, marker::PhantomData, mem::size_of};
+use core::{any::Any, mem::size_of};
 
 /// A native function dynamically defined.
 pub trait IntoDynamicFunction<'a, T, S> {
     /// Converts itself into a dynamic function.
     fn into_dynamic(self) -> DynamicFunction<'a>;
-}
-
-struct RefMut<T> {
-    _data: PhantomData<T>,
 }
 
 macro_rules! impl_function {
@@ -29,14 +24,14 @@ macro_rules! impl_function {
                                 arguments[iter.next().unwrap_or_default()]
                                 .borrow()
                                 .downcast_ref::<$type>()
-                                .ok_or(DynamicError::Downcast)?
+                                .ok_or(AnyFnError::Downcast)?
                                 .clone(),
                             )*
                             $(
                                 arguments[iter.next().unwrap_or_default()]
                                 .borrow_mut()
                                 .downcast_mut::<$ref>()
-                                .ok_or(DynamicError::Downcast)?,
+                                .ok_or(AnyFnError::Downcast)?,
                             )*
                         )))
                     }),
@@ -72,56 +67,3 @@ impl_functions!(
     [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z],
     [い, ろ, は, に, お, へ, と, ち, り, ぬ, る, を]
 );
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use alloc::{format, string::String};
-    use core::cell::RefCell;
-
-    #[derive(Clone, Debug)]
-    struct Foo {}
-
-    const fn foo(x: usize, y: usize) -> usize {
-        x + y
-    }
-
-    fn bar(name: String, value: Option<Foo>) -> String {
-        format!("{name}: {value:?}")
-    }
-
-    fn baz(x: usize, y: &mut usize) {
-        *y = x;
-    }
-
-    fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
-        RefCell::new(Box::new(x))
-    }
-
-    #[test]
-    fn create_dynamic_function() {
-        foo.into_dynamic();
-        bar.into_dynamic();
-    }
-
-    #[test]
-    fn call_dynamic_function() {
-        assert_eq!(
-            *foo.into_dynamic()
-                .call(&[&wrap(1usize), &wrap(2usize)])
-                .unwrap()
-                .downcast::<usize>()
-                .unwrap(),
-            3
-        );
-    }
-
-    #[test]
-    fn call_dynamic_function_with_mutable_reference() {
-        let x: RefCell<Box<dyn Any>> = RefCell::new(Box::new(0usize));
-
-        baz.into_dynamic().call(&[&wrap(42usize), &x]).unwrap();
-
-        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
-    }
-}
