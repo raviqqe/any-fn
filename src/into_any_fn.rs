@@ -29,6 +29,9 @@ macro_rules! impl_function {
 }
 
 macro_rules! impl_function_combination {
+    ([$($x:ident),*]) => {
+        impl_function_combination!([$($x),*], [], [], [], []);
+    };
     (
         [$x:ident$(,)? $($y:ident),*],
         [$($name:ident),* $(,)?],
@@ -90,12 +93,12 @@ macro_rules! impl_function_combination {
 
 macro_rules! impl_functions {
     ($first_type:ident, $($type:ident),*) => {
-        impl_function_combination!([$first_type, $($type),*], [], [], [], []);
+        impl_function_combination!([$first_type, $($type),*]);
         impl_functions!($($type),*);
     };
     ($type:ident) => {
-        impl_function_combination!([$type], [], [], [], []);
-        impl_function_combination!([], [], [], [], []);
+        impl_function_combination!([$type]);
+        impl_function_combination!([]);
     }
 }
 
