@@ -8,44 +8,38 @@ pub trait IntoAnyFn<'a, T, S> {
     fn into_any_fn(self) -> AnyFn<'a>;
 }
 
-macro_rules! annotate {
-    (0, $type:ident) => {
-        $type
-    };
-    (1, &$type:ident) => {
-        RefMut<$type>
-    };
-}
-
-macro_rules! parameter {
-    (0, $type:ident) => {
-        $type
-    };
-    (1, &$type:ident) => {
-        &mut $type
-    };
-}
-
-macro_rules! argument {
-    (0, $type:ident, $arguments:ident, $iter:ident) => {
-        $arguments[$iter.next().unwrap_or_default()]
-            .borrow()
-            .downcast_ref::<$type>()
-            .ok_or(AnyFnError::Downcast)?
-            .clone()
-    };
-    (1, $type:ident, $arguments:ident, $iter:ident) => {
-        $arguments[$iter.next().unwrap_or_default()]
-            .borrow_mut()
-            .downcast_mut::<$type>()
-            .ok_or(AnyFnError::Downcast)?
-    };
-}
+// macro_rules! annotate {
+//     (0, $type:ident) => {
+//         $type
+//     };
+//     (1, &$type:ident) => {
+//         RefMut<$type>
+//     };
+// }
+//
+// macro_rules! parameter {
+//     (0, $type:ident) => {
+//         $type
+//     };
+//     (1, &$type:ident) => {
+//         &mut $type
+//     };
+// }
+//
+// macro_rules! argument {
+//     (0, $type:ident, $arguments:ident, $iter:ident) => {};
+//     (1, $type:ident, $arguments:ident, $iter:ident) => {
+//         $arguments[$iter.next().unwrap_or_default()]
+//             .borrow_mut()
+//             .downcast_mut::<$type>()
+//             .ok_or(AnyFnError::Downcast)?
+//     };
+// }
 
 macro_rules! impl_function {
-    ([$($name:ident),*], [$($parameter:ty),*], [$($argument:expr),*], [$($type:expr),*]) => {
+    ([$($name:ident),*], [$($parameter:ty),*], [$($argument:expr),*], [$($type:ty),*]) => {
         #[allow(unused_parens)]
-        impl<'a, T1: FnMut($($parameter),*) -> T2 + 'a, T2: Any, $($name: Any + Clone),*> IntoAnyFn<'a, ($($type),*), T2> for T1 {
+        impl<'a, T1: FnMut($($parameter),*) -> T2 + 'a, T2: Any, $($name: Any + Clone),*> IntoAnyFn<'a, ($($type,)*), T2> for T1 {
             #[allow(non_snake_case)]
             fn into_any_fn(mut self) -> AnyFn<'a> {
                 #[allow(unused, unused_mut)]
@@ -63,17 +57,35 @@ macro_rules! impl_function {
 }
 
 macro_rules! impl_function_combination {
-    ([$first_type:ident$(,)? $($type:ident),*], [$(($kind:literal, $name:ident)),* $(,)?]) => {
+    (
+        [$x:ident$(,)? $($y:ident),*],
+        [$($name:ident),* $(,)?],
+        [$($parameter:ty),* $(,)?],
+        [$($argument:expr),* $(,)?],
+        [$($type:ty),* $(,)?]
+    ) => {
         impl_function_combination!(
-            [$($type),*],
-            [(0, $first_type), $(($kind, $name)),*]
-        );
-        impl_function_combination!(
-            [$($type),*],
-            [(1, $first_type), $(($kind, $name)),*]
+            [$($y),*],
+            [$x, $($name),*],
+            [$x, $($parameter),*],
+            [
+                arguments[iter.next().unwrap_or_default()]
+                    .borrow()
+                    .downcast_ref::<$x>()
+                    .ok_or(AnyFnError::Downcast)?
+                    .clone(),
+                $($argument),*
+            ],
+            [$x, $($type),*]
         );
     };
-    ([], [$($name:ident),*], [$($parameter:ty),*], [$($argument:expr),*], [$($type:expr),*]) => {
+    (
+        [],
+        [$($name:ident),* $(,)?],
+        [$($parameter:ty),* $(,)?],
+        [$($argument:expr),* $(,)?],
+        [$($type:ty),* $(,)?]
+    ) => {
         impl_function!(
             [$($name),*],
             [$($parameter),*],
@@ -85,12 +97,12 @@ macro_rules! impl_function_combination {
 
 macro_rules! impl_functions {
     ($first_type:ident, $($type:ident),*) => {
-        impl_function_combination!([$first_type, $($type),*], []);
+        impl_function_combination!([$first_type, $($type),*], [], [], [], []);
         impl_functions!($($type),*);
     };
     ($type:ident) => {
-        impl_function_combination!([$type], []);
-        impl_function_combination!([], []);
+        impl_function_combination!([$type], [], [], [], []);
+        impl_function_combination!([], [], [], [], []);
     }
 }
 
