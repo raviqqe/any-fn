@@ -63,7 +63,7 @@ mod tests {
 
     #[test]
     fn call_dynamic_function_with_mutable_reference() {
-        let x: RefCell<Box<dyn Any>> = RefCell::new(Box::new(0usize));
+        let x = wrap(0usize);
 
         baz.into_dynamic().call(&[&wrap(42usize), &x]).unwrap();
 

@@ -6,6 +6,53 @@
 
 [`core::any::Any`](https://doc.rust-lang.org/stable/core/any/trait.Any.html) for functions.
 
+## Examples
+
+### Calling a dynamic function with unboxed arguments
+
+```rust
+use any_fn::IntoDynamicFunction;
+use core::{any::Any, cell::RefCell};
+
+fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
+    RefCell::new(Box::new(x))
+}
+
+const fn foo(x: usize, y: usize) -> usize {
+    x + y
+}
+
+assert_eq!(
+    *foo.into_dynamic()
+        .call(&[&wrap(1usize), &wrap(2usize)])
+        .unwrap()
+        .downcast::<usize>()
+        .unwrap(),
+    3
+);
+```
+
+### Calling a dynamic function with mutable reference arguments
+
+```rust
+use any_fn::IntoDynamicFunction;
+use core::{any::Any, cell::RefCell};
+
+fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
+    RefCell::new(Box::new(x))
+}
+
+fn foo(x: usize, y: &mut usize) {
+    *y = x;
+}
+
+let x = wrap(0usize);
+
+foo.into_dynamic().call(&[&wrap(42usize), &x]).unwrap();
+
+assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+```
+
 ## License
 
 [MIT](LICENSE)
