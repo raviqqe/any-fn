@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 
-/// A mutable reference type.
+/// A mutable reference.
 ///
 /// This type is purely an annotator for the [`crate::IntoAnyFn`] trait and
 /// never constructed.
