@@ -11,7 +11,7 @@
 ### Calling a dynamic function with unboxed arguments
 
 ```rust
-use any_fn::IntoDynamicFunction;
+use any_fn::IntoAnyFn;
 use core::{any::Any, cell::RefCell};
 
 fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
@@ -35,7 +35,7 @@ assert_eq!(
 ### Calling a dynamic function with mutable reference arguments
 
 ```rust
-use any_fn::IntoDynamicFunction;
+use any_fn::IntoAnyFn;
 use core::{any::Any, cell::RefCell};
 
 fn wrap<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
