@@ -29,10 +29,6 @@ pub trait IntoAnyFn<'a, T, S> {
 // macro_rules! argument {
 //     (0, $type:ident, $arguments:ident, $iter:ident) => {};
 //     (1, $type:ident, $arguments:ident, $iter:ident) => {
-//         $arguments[$iter.next().unwrap_or_default()]
-//             .borrow_mut()
-//             .downcast_mut::<$type>()
-//             .ok_or(AnyFnError::Downcast)?
 //     };
 // }
 
@@ -79,6 +75,21 @@ macro_rules! impl_function_combination {
                 $($argument),*
             ],
             [$x, $($type),*]
+        );
+        impl_function_combination!(
+            [$($y),*],
+            [$x, $($name),*],
+            [&mut $x, $($parameter),*],
+            [
+                |arguments: &[AnyCell], iter: &mut core::ops::RangeFrom<usize>| {
+                    arguments[iter.next().unwrap_or_default()]
+                        .borrow_mut()
+                        .downcast_mut::<$x>()
+                        .ok_or(AnyFnError::Downcast)
+                },
+                $($argument),*
+            ],
+            [RefMut<$x>, $($type),*]
         );
     };
     (
