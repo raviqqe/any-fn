@@ -33,14 +33,6 @@ mod tests {
     #[derive(Clone, Debug)]
     struct Foo {}
 
-    fn baz(x: usize, y: &mut usize) {
-        *y = x;
-    }
-
-    fn qux(x: &mut usize, y: usize) {
-        *x = y;
-    }
-
     #[test]
     fn create_function() {
         const fn foo(x: usize, y: usize) -> usize {
@@ -73,18 +65,26 @@ mod tests {
 
     #[test]
     fn call_function_with_mutable_reference_as_last_argument() {
+        fn foo(x: usize, y: &mut usize) {
+            *y = x;
+        }
+
         let x = value(0usize);
 
-        baz.into_any_fn().call(&[&value(42usize), &x]).unwrap();
+        foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
     fn call_function_with_mutable_reference_as_first_argument() {
+        fn foo(x: &mut usize, y: usize) {
+            *x = y;
+        }
+
         let x = value(0usize);
 
-        qux.into_any_fn().call(&[&x, &value(42usize)]).unwrap();
+        foo.into_any_fn().call(&[&x, &value(42usize)]).unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
     }
