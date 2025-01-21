@@ -30,11 +30,11 @@ mod tests {
     use super::*;
     use alloc::{format, string::String};
 
-    #[derive(Clone, Debug)]
-    struct Foo {}
-
     #[test]
     fn create_function() {
+        #[derive(Clone, Debug)]
+        struct Foo {}
+
         const fn foo(x: usize, y: usize) -> usize {
             x + y
         }
@@ -102,5 +102,22 @@ mod tests {
             .unwrap();
 
         assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+    }
+
+    #[test]
+    fn mutate_struct() {
+        struct Foo {
+            foo: usize,
+        }
+
+        fn foo(x: usize, y: &mut Foo) {
+            y.foo = x;
+        }
+
+        let x = value(Foo { foo: 0 });
+
+        foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
+
+        assert_eq!(x.borrow().downcast_ref::<Foo>().unwrap().foo, 42);
     }
 }
