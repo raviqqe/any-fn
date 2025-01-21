@@ -6,6 +6,8 @@
 
 Dynamically-typed functions via [`core::any::Any`](https://doc.rust-lang.org/stable/core/any/trait.Any.html) in Rust.
 
+Due to combinatorial explosion, the dynamically-typed functions support only up to 6 arguments... 🥲
+
 ## Examples
 
 ### Mutating a `struct`
@@ -39,7 +41,7 @@ fn foo(x: usize, y: &usize, z: &mut usize) {
 
 let x = value(0usize);
 
-<_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(foo)
+IntoAnyFn::<(_, Ref<usize>, _), _>::into_any_fn(foo)
     .call(&[&value(40usize), &value(2usize), &x])
     .unwrap();
 
