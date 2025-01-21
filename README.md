@@ -19,7 +19,7 @@ fn foo(x: usize, y: &usize, z: &mut usize) {
 
 let x = value(0usize);
 
-<_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(foo)
+foo.into_any_fn()
     .call(&[&value(40usize), &value(2usize), &x])
     .unwrap();
 
