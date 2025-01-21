@@ -97,7 +97,7 @@ mod tests {
 
         let x = value(0usize);
 
-        foo.into_any_fn()
+        <_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(foo)
             .call(&[&value(40usize), &value(2usize), &x])
             .unwrap();
 
