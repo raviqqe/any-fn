@@ -8,24 +8,6 @@ Dynamically-typed functions via [`core::any::Any`](https://doc.rust-lang.org/sta
 
 ## Examples
 
-### Calling a function with unboxed, immutable reference, and mutable reference arguments
-
-```rust
-use any_fn::{IntoAnyFn, Ref, value};
-
-fn foo(x: usize, y: &usize, z: &mut usize) {
-    *z = x + *y;
-}
-
-let x = value(0usize);
-
-<_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(foo)
-    .call(&[&value(40usize), &value(2usize), &x])
-    .unwrap();
-
-assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
-```
-
 ### Mutating a `struct`
 
 ```rust
@@ -44,6 +26,24 @@ let x = value(Foo { foo: 0 });
 foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
 assert_eq!(x.borrow().downcast_ref::<Foo>().unwrap().foo, 42);
+```
+
+### Calling a function with unboxed, immutable reference, and mutable reference arguments
+
+```rust
+use any_fn::{IntoAnyFn, Ref, value};
+
+fn foo(x: usize, y: &usize, z: &mut usize) {
+    *z = x + *y;
+}
+
+let x = value(0usize);
+
+<_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(foo)
+    .call(&[&value(40usize), &value(2usize), &x])
+    .unwrap();
+
+assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
 ```
 
 ## License

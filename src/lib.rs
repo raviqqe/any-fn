@@ -120,4 +120,18 @@ mod tests {
 
         assert_eq!(x.borrow().downcast_ref::<Foo>().unwrap().foo, 42);
     }
+
+    #[test]
+    fn convert_closure() {
+        let mut x: usize = 0;
+
+        (|| {
+            x = 42;
+        })
+        .into_any_fn()
+        .call(&[])
+        .unwrap();
+
+        assert_eq!(x, 42);
+    }
 }

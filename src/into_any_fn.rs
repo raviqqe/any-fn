@@ -10,9 +10,9 @@ pub trait IntoAnyFn<'a, T, S> {
 }
 
 macro_rules! impl_function {
-    ([$($name:ident),*], [$($trait:path),*], [$($parameter:ty),*], [$($argument:item),*], [$($type:ty),*]) => {
+    ([$($name:ident),*], [$([$($trait:path),*]),*], [$($parameter:ty),*], [$($argument:item),*], [$($type:ty),*]) => {
         #[allow(unused_parens)]
-        impl<'a, T1: FnMut($($parameter),*) -> T2 + 'a, T2: Any, $($name: Any + $trait),*> IntoAnyFn<'a, ($($type,)*), T2> for T1 {
+        impl<'a, T1: FnMut($($parameter),*) -> T2 + 'a, T2: Any, $($name: Any $(+$trait)*),*> IntoAnyFn<'a, ($($type,)*), T2> for T1 {
             #[allow(non_snake_case)]
             fn into_any_fn(mut self) -> AnyFn<'a> {
                 #[allow(unused, unused_mut)]
@@ -36,7 +36,7 @@ macro_rules! impl_function_combination {
     (
         [$x:ident$(,)? $($y:ident),*],
         [$($name:ident),* $(,)?],
-        [$($trait:path),* $(,)?],
+        [$([$($trait:path),* $(,)?]),* $(,)?],
         [$($parameter:ty),* $(,)?],
         [$($argument:item),* $(,)?],
         [$($type:ty),* $(,)?]
@@ -44,7 +44,7 @@ macro_rules! impl_function_combination {
         impl_function_combination!(
             [$($y),*],
             [$x, $($name),*],
-            [Clone, $($trait),*],
+            [[Clone], $([$($trait),*]),*],
             [$x, $($parameter),*],
             [
                 macro_rules! $x {
@@ -63,7 +63,7 @@ macro_rules! impl_function_combination {
         impl_function_combination!(
             [$($y),*],
             [$x, $($name),*],
-            [Any, $($trait),*],
+            [[], $([$($trait),*]),*],
             [&$x, $($parameter),*],
             [
                 macro_rules! $x {
@@ -81,7 +81,7 @@ macro_rules! impl_function_combination {
         impl_function_combination!(
             [$($y),*],
             [$x, $($name),*],
-            [Any, $($trait),*],
+            [[], $([$($trait),*]),*],
             [&mut $x, $($parameter),*],
             [
                 macro_rules! $x {
@@ -100,14 +100,14 @@ macro_rules! impl_function_combination {
     (
         [],
         [$($name:ident),* $(,)?],
-        [$($trait:path),* $(,)?],
+        [$([$($trait:path),* $(,)?]),* $(,)?],
         [$($parameter:ty),* $(,)?],
         [$($argument:item),* $(,)?],
         [$($type:ty),* $(,)?]
     ) => {
         impl_function!(
             [$($name),*],
-            [$($trait),*],
+            [$([$($trait),*]),*],
             [$($parameter),*],
             [$($argument),*],
             [$($type),*]
