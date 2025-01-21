@@ -33,14 +33,6 @@ mod tests {
     #[derive(Clone, Debug)]
     struct Foo {}
 
-    const fn foo(x: usize, y: usize) -> usize {
-        x + y
-    }
-
-    fn bar(name: String, value: Option<Foo>) -> String {
-        format!("{name}: {value:?}")
-    }
-
     fn baz(x: usize, y: &mut usize) {
         *y = x;
     }
@@ -49,18 +41,26 @@ mod tests {
         *x = y;
     }
 
-    fn quux(x: usize, y: &usize, z: &mut usize) {
-        *z = x + *y;
-    }
-
     #[test]
     fn create_function() {
+        const fn foo(x: usize, y: usize) -> usize {
+            x + y
+        }
+
+        fn bar(name: String, value: Option<Foo>) -> String {
+            format!("{name}: {value:?}")
+        }
+
         foo.into_any_fn();
         bar.into_any_fn();
     }
 
     #[test]
     fn call_function() {
+        const fn foo(x: usize, y: usize) -> usize {
+            x + y
+        }
+
         assert_eq!(
             *foo.into_any_fn()
                 .call(&[&value(1usize), &value(2usize)])
@@ -91,6 +91,10 @@ mod tests {
 
     #[test]
     fn call_function_with_all_types() {
+        fn foo(x: usize, y: &usize, z: &mut usize) {
+            *z = x + *y;
+        }
+
         let x = value(0usize);
 
         <_ as IntoAnyFn<'_, (_, Ref<usize>, _), _>>::into_any_fn(quux)
