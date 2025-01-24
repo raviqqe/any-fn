@@ -1,6 +1,6 @@
 use crate::{AnyFn, Ref, RefMut, Value};
-use alloc::boxed::Box;
-use core::{any::Any, mem::size_of};
+use alloc::{boxed::Box, vec};
+use core::any::{Any, TypeId};
 
 /// A trait to convert a statically-typed function into a dynamically-typed
 /// function.
@@ -17,7 +17,8 @@ macro_rules! impl_function {
             fn into_any_fn(mut self) -> AnyFn<'a> {
                 #[allow(unused, unused_mut)]
                 AnyFn::new(
-                    (&[$(size_of::<$name>()),*] as &[usize]).len(),
+                    vec![$(TypeId::of::<$name>()),*],
+                    TypeId::of::<T2>(),
                     Box::new(move |arguments: &[&Value]| {
                         let mut iter = 0..;
                         $($argument);*
