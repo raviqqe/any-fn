@@ -27,8 +27,8 @@ impl<'a> AnyFn<'a> {
     }
 
     /// Returns parameter types.
-    pub const fn parameter_types(&self) -> &[TypeId] {
-        &self.parameter_types
+    pub fn parameter_types(&self) -> &[TypeId] {
+        &*self.parameter_types
     }
 
     /// Returns a return type.
@@ -37,7 +37,7 @@ impl<'a> AnyFn<'a> {
     }
 
     /// Returns an arity of arguments.
-    pub const fn arity(&self) -> usize {
+    pub fn arity(&self) -> usize {
         self.parameter_types.len()
     }
 
