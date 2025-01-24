@@ -28,7 +28,7 @@ impl<'a> AnyFn<'a> {
 
     /// Returns parameter types.
     pub fn parameter_types(&self) -> &[TypeId] {
-        &*self.parameter_types
+        &self.parameter_types
     }
 
     /// Returns a return type.
