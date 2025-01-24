@@ -1,8 +1,9 @@
 use crate::AnyFnError;
 use alloc::boxed::Box;
-use core::any::Any;
-use core::cell::RefCell;
-use core::cell::{Ref, RefMut};
+use core::{
+    any::Any,
+    cell::{Ref, RefCell, RefMut},
+};
 
 /// A dynamically-typed value.
 pub struct Value(RefCell<Box<dyn Any>>);
