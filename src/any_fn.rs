@@ -1,6 +1,6 @@
 use super::error::AnyFnError;
 use crate::Value;
-use alloc::boxed::Box;
+use alloc::{boxed::Box, vec::Vec};
 use core::any::{Any, TypeId};
 
 type BoxedFunction<'a> = Box<dyn FnMut(&[&Value]) -> Result<Box<dyn Any>, AnyFnError> + 'a>;
@@ -26,9 +26,19 @@ impl<'a> AnyFn<'a> {
         }
     }
 
+    /// Returns parameter types.
+    pub const fn parameter_types(&self) -> &[TypeId] {
+        &self.parameter_types
+    }
+
+    /// Returns a return type.
+    pub const fn return_type(&self) -> TypeId {
+        self.return_type
+    }
+
     /// Returns an arity of arguments.
     pub const fn arity(&self) -> usize {
-        self.arity
+        self.parameter_types.len()
     }
 
     /// Calls a function.
