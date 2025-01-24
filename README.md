@@ -27,7 +27,7 @@ let x = value(Foo { foo: 0 });
 
 foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
-assert_eq!(x.borrow().downcast_ref::<Foo>().unwrap().foo, 42);
+assert_eq!(x.downcast_ref::<Foo>().unwrap().foo, 42);
 ```
 
 ### Calling a function with unboxed, immutable reference, and mutable reference arguments
@@ -45,7 +45,7 @@ IntoAnyFn::<(_, Ref<usize>, _), _>::into_any_fn(foo)
     .call(&[&value(40usize), &value(2usize), &x])
     .unwrap();
 
-assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+assert_eq!(*x.downcast_ref::<usize>().unwrap(), 42);
 ```
 
 ## License
