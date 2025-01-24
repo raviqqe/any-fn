@@ -36,7 +36,7 @@ impl<'a> AnyFn<'a> {
         self.return_type
     }
 
-    /// Returns an arity of arguments.
+    /// Returns an arity.
     pub fn arity(&self) -> usize {
         self.parameter_types.len()
     }
