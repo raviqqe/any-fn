@@ -1,4 +1,4 @@
-use crate::{error::AnyFnError, AnyCell, AnyFn, Ref, RefMut};
+use crate::{AnyFn, Ref, RefMut, Value};
 use alloc::boxed::Box;
 use core::{any::Any, mem::size_of};
 
@@ -18,7 +18,7 @@ macro_rules! impl_function {
                 #[allow(unused, unused_mut)]
                 AnyFn::new(
                     (&[$(size_of::<$name>()),*] as &[usize]).len(),
-                    Box::new(move |arguments: &[AnyCell]| {
+                    Box::new(move |arguments: &[&Value]| {
                         let mut iter = 0..;
                         $($argument);*
                         Ok(Box::new(self($($name!(arguments, iter)),*)))
@@ -50,9 +50,7 @@ macro_rules! impl_function_combination {
                 macro_rules! $x {
                     ($arguments:ident, $iter:ident) => {
                         $arguments[$iter.next().unwrap_or_default()]
-                            .borrow()
-                            .downcast_ref::<$x>()
-                            .ok_or(AnyFnError::Downcast)?
+                            .downcast_ref::<$x>()?
                             .clone()
                     };
                 },
@@ -69,9 +67,7 @@ macro_rules! impl_function_combination {
                 macro_rules! $x {
                     ($arguments:ident, $iter:ident) => {
                         $arguments[$iter.next().unwrap_or_default()]
-                            .borrow()
-                            .downcast_ref::<$x>()
-                            .ok_or(AnyFnError::Downcast)?
+                            .downcast_ref::<$x>()?
                     };
                 },
                 $($argument),*
@@ -87,9 +83,7 @@ macro_rules! impl_function_combination {
                 macro_rules! $x {
                     ($arguments:ident, $iter:ident) => {
                         $arguments[$iter.next().unwrap_or_default()]
-                            .borrow_mut()
-                            .downcast_mut::<$x>()
-                            .ok_or(AnyFnError::Downcast)?
+                            .downcast_mut::<$x>()?
                     };
                 },
                 $($argument),*
