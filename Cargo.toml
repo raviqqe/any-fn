@@ -1,7 +1,7 @@
 [package]
 name = "any-fn"
 description = "Dynamically-typed functions to represent any functions in Rust"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 license-file = "./LICENSE"
 repository = "https://github.com/raviqqe/any-fn"

@@ -13,7 +13,7 @@ Due to combinatorial explosion, the dynamically-typed functions support only up 
 ### Mutating a `struct`
 
 ```rust
-use any_fn::{IntoAnyFn, value};
+use any_fn::{r#fn, value};
 
 struct Foo {
     foo: usize,
@@ -25,7 +25,7 @@ fn foo(x: usize, y: &mut Foo) {
 
 let x = value(Foo { foo: 0 });
 
-foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
+r#fn(foo).call(&[&value(42usize), &x]).unwrap();
 
 assert_eq!(x.downcast_ref::<Foo>().unwrap().foo, 42);
 ```
@@ -33,7 +33,7 @@ assert_eq!(x.downcast_ref::<Foo>().unwrap().foo, 42);
 ### Calling a function with unboxed, immutable reference, and mutable reference arguments
 
 ```rust
-use any_fn::{IntoAnyFn, Ref, value};
+use any_fn::{r#fn, Ref, value};
 
 fn foo(x: usize, y: &usize, z: &mut usize) {
     *z = x + *y;
@@ -41,7 +41,7 @@ fn foo(x: usize, y: &usize, z: &mut usize) {
 
 let x = value(0usize);
 
-IntoAnyFn::<(_, Ref<usize>, _), _>::into_any_fn(foo)
+r#fn::<(_, Ref<usize>, _), _>(foo)
     .call(&[&value(40usize), &value(2usize), &x])
     .unwrap();
 
