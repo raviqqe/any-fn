@@ -76,7 +76,7 @@ mod tests {
 
         foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
-        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+        assert_eq!(*x.downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
@@ -89,7 +89,7 @@ mod tests {
 
         foo.into_any_fn().call(&[&x, &value(42usize)]).unwrap();
 
-        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+        assert_eq!(*x.downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
@@ -104,7 +104,7 @@ mod tests {
             .call(&[&value(40usize), &value(2usize), &x])
             .unwrap();
 
-        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+        assert_eq!(*x.downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
@@ -121,7 +121,7 @@ mod tests {
 
         foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
-        assert_eq!(x.borrow().downcast_ref::<Foo>().unwrap().foo, 42);
+        assert_eq!(x.downcast_ref::<Foo>().unwrap().foo, 42);
     }
 
     #[test]
