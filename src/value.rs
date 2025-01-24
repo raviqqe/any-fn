@@ -3,11 +3,11 @@ use core::any::Any;
 use core::cell::RefCell;
 
 /// A dynianmically-typed value.
-pub struct Value<'a>(&'a RefCell<Box<dyn Any>>);
+pub struct Value(RefCell<Box<dyn Any>>);
 
-impl<T: Any> Value<T> {
+impl Value {
     /// Creates a value.
-    pub fn new<T: Any>(value: T) -> Self {
-        Self(RefCell::new(Box::new(x)))
+    pub fn new(value: impl Any) -> Self {
+        Self(RefCell::new(Box::new(value)))
     }
 }
