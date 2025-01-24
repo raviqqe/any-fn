@@ -14,6 +14,14 @@ impl Value {
         Self(RefCell::new(Box::new(value)))
     }
 
+    /// Downcasts a value.
+    pub fn downcast<T: Any>(self) -> Result<Box<T>, AnyFnError> {
+        self.0
+            .into_inner()
+            .downcast()
+            .map_err(|_| AnyFnError::Downcast)
+    }
+
     /// Downcasts a value into a reference.
     pub fn downcast_ref<T: Any>(&self) -> Result<Ref<T>, AnyFnError> {
         Ref::filter_map(self.0.borrow(), |value| value.downcast_ref())
