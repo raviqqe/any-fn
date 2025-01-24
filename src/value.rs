@@ -1,8 +1,8 @@
+use crate::AnyFnError;
 use alloc::boxed::Box;
 use core::any::Any;
 use core::cell::RefCell;
-
-use crate::AnyFnError;
+use core::cell::{Ref, RefMut};
 
 /// A dynianmically-typed value.
 pub struct Value(RefCell<Box<dyn Any>>);
@@ -14,15 +14,14 @@ impl Value {
     }
 
     /// Downcasts a value into a reference.
-    pub fn downcast_ref<T: Any>(&self) -> Result<&T, AnyFnError> {
-        self.0.borrow().downcast_ref().ok_or(AnyFnError::Downcast)
+    pub fn downcast_ref<T: Any>(&self) -> Result<Ref<&T>, AnyFnError> {
+        Ref::filter_map(self.0.borrow(), |value| value.downcast_ref())
+            .map_err(|_| AnyFnError::Downcast)
     }
 
     /// Downcasts a value into a mutable reference.
-    pub fn downcast_mut<T: Any>(&self) -> Result<&mut T, AnyFnError> {
-        self.0
-            .borrow_mut()
-            .downcast_mut()
-            .ok_or(AnyFnError::Downcast)
+    pub fn downcast_mut<T: Any>(&self) -> Result<RefMut<&mut T>, AnyFnError> {
+        RefMut::filter_map(self.0.borrow_mut(), |value| value.downcast_mut())
+            .map_err(|_| AnyFnError::Downcast)
     }
 }
