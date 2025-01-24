@@ -4,7 +4,7 @@ use core::any::Any;
 use core::cell::RefCell;
 use core::cell::{Ref, RefMut};
 
-/// A dynianmically-typed value.
+/// A dynamically-typed value.
 pub struct Value(RefCell<Box<dyn Any>>);
 
 impl Value {
