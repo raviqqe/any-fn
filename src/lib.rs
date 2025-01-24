@@ -9,6 +9,7 @@ mod into_any_fn;
 mod r#ref;
 mod ref_mut;
 mod value;
+mod value;
 
 use alloc::boxed::Box;
 pub use any_fn::*;
@@ -17,12 +18,13 @@ pub use error::*;
 pub use into_any_fn::*;
 pub use r#ref::*;
 pub use ref_mut::*;
+pub use value::*;
 
 type BoxedFunction<'a> = Box<dyn FnMut(&[AnyCell]) -> Result<Box<dyn Any>, AnyFnError> + 'a>;
 
 /// Creates a dynamically-typed value.
-pub fn value<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
-    RefCell::new(Box::new(x))
+pub fn value<T: Any>(value: T) -> RefCell<Box<dyn Any>> {
+    Value::new(value)
 }
 
 #[cfg(test)]
