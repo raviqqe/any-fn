@@ -9,7 +9,6 @@ mod into_any_fn;
 mod r#ref;
 mod ref_mut;
 mod value;
-mod value;
 
 use alloc::boxed::Box;
 pub use any_fn::*;
