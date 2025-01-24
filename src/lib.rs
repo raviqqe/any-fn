@@ -8,21 +8,24 @@ mod error;
 mod into_any_fn;
 mod r#ref;
 mod ref_mut;
+mod value;
 
-use alloc::boxed::Box;
 pub use any_fn::*;
-use core::{any::Any, cell::RefCell};
+use core::any::Any;
 pub use error::*;
 pub use into_any_fn::*;
 pub use r#ref::*;
 pub use ref_mut::*;
-
-type AnyCell<'a> = &'a RefCell<Box<dyn Any>>;
-type BoxedFunction<'a> = Box<dyn FnMut(&[AnyCell]) -> Result<Box<dyn Any>, AnyFnError> + 'a>;
+pub use value::*;
 
 /// Creates a dynamically-typed value.
-pub fn value<T: 'static>(x: T) -> RefCell<Box<dyn Any>> {
-    RefCell::new(Box::new(x))
+pub fn value(value: impl Any) -> Value {
+    Value::new(value)
+}
+
+/// Creates a dynamically-typed function.
+pub fn r#fn<'a, T, S>(r#fn: impl IntoAnyFn<'a, T, S>) -> AnyFn<'a> {
+    r#fn.into_any_fn()
 }
 
 #[cfg(test)]
@@ -73,7 +76,7 @@ mod tests {
 
         foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
-        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+        assert_eq!(*x.downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
@@ -86,7 +89,7 @@ mod tests {
 
         foo.into_any_fn().call(&[&x, &value(42usize)]).unwrap();
 
-        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+        assert_eq!(*x.downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
@@ -101,7 +104,7 @@ mod tests {
             .call(&[&value(40usize), &value(2usize), &x])
             .unwrap();
 
-        assert_eq!(*x.borrow().downcast_ref::<usize>().unwrap(), 42);
+        assert_eq!(*x.downcast_ref::<usize>().unwrap(), 42);
     }
 
     #[test]
@@ -118,7 +121,7 @@ mod tests {
 
         foo.into_any_fn().call(&[&value(42usize), &x]).unwrap();
 
-        assert_eq!(x.borrow().downcast_ref::<Foo>().unwrap().foo, 42);
+        assert_eq!(x.downcast_ref::<Foo>().unwrap().foo, 42);
     }
 
     #[test]

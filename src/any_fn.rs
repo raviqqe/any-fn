@@ -1,7 +1,9 @@
 use super::error::AnyFnError;
-use crate::{AnyCell, BoxedFunction};
+use crate::Value;
 use alloc::boxed::Box;
 use core::any::Any;
+
+type BoxedFunction<'a> = Box<dyn FnMut(&[&Value]) -> Result<Box<dyn Any>, AnyFnError> + 'a>;
 
 /// A dynamically-typed function.
 pub struct AnyFn<'a> {
@@ -21,7 +23,7 @@ impl<'a> AnyFn<'a> {
     }
 
     /// Calls a function.
-    pub fn call(&mut self, arguments: &[AnyCell]) -> Result<Box<dyn Any>, AnyFnError> {
+    pub fn call(&mut self, arguments: &[&Value]) -> Result<Box<dyn Any>, AnyFnError> {
         (self.function)(arguments)
     }
 }
