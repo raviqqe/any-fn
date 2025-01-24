@@ -1,20 +1,29 @@
 use super::error::AnyFnError;
 use crate::Value;
 use alloc::boxed::Box;
-use core::any::Any;
+use core::any::{Any, TypeId};
 
 type BoxedFunction<'a> = Box<dyn FnMut(&[&Value]) -> Result<Box<dyn Any>, AnyFnError> + 'a>;
 
 /// A dynamically-typed function.
 pub struct AnyFn<'a> {
-    arity: usize,
+    parameter_types: Vec<TypeId>,
+    return_type: TypeId,
     function: BoxedFunction<'a>,
 }
 
 impl<'a> AnyFn<'a> {
     /// Creates a dynamically-typed function.
-    pub(crate) fn new(parameters: Vec<TypeId>, value: TypeId, function: BoxedFunction<'a>) -> Self {
-        Self { arity, function }
+    pub(crate) fn new(
+        parameter_types: Vec<TypeId>,
+        return_type: TypeId,
+        function: BoxedFunction<'a>,
+    ) -> Self {
+        Self {
+            parameter_types,
+            return_type,
+            function,
+        }
     }
 
     /// Returns an arity of arguments.
