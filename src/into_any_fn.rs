@@ -1,8 +1,6 @@
 use crate::{AnyFn, Ref, RefMut, Value};
-use alloc::boxed::Box;
-use alloc::vec;
-use core::any::Any;
-use core::any::TypeId;
+use alloc::{boxed::Box, vec};
+use core::any::{Any, TypeId};
 
 /// A trait to convert a statically-typed function into a dynamically-typed
 /// function.
