@@ -22,7 +22,7 @@ macro_rules! impl_function {
                     Box::new(move |arguments: &[&Value]| {
                         let mut iter = 0..;
                         $($argument);*
-                        Ok(Box::new(self($($name!(arguments, iter)),*)))
+                        Ok(Value::new(self($($name!(arguments, iter)),*)))
                     }),
                 )
             }
