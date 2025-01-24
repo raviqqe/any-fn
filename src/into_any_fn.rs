@@ -10,7 +10,7 @@ pub trait IntoAnyFn<'a, T, S> {
 }
 
 macro_rules! impl_function {
-    ([$($name:ident),*], [$([$($trait:path),*]),*], [$($parameter:ty),*], [$($argument:item),*], [$($type:ty),*]) => {
+    ([$($name:ident),*], [$([$($trait:tt),*]),*], [$($parameter:ty),*], [$($argument:item),*], [$($type:ty),*]) => {
         #[allow(unused_parens)]
         impl<'a, T1: FnMut($($parameter),*) -> T2 + 'a, T2: Any, $($name: Any $(+$trait)*),*> IntoAnyFn<'a, ($($type,)*), T2> for T1 {
             #[allow(non_snake_case)]
@@ -37,7 +37,7 @@ macro_rules! impl_function_combination {
     (
         [$x:ident$(,)? $($y:ident),*],
         [$($name:ident),* $(,)?],
-        [$([$($trait:path),* $(,)?]),* $(,)?],
+        [$([$($trait:tt),* $(,)?]),* $(,)?],
         [$($parameter:ty),* $(,)?],
         [$($argument:item),* $(,)?],
         [$($type:ty),* $(,)?]
@@ -95,7 +95,7 @@ macro_rules! impl_function_combination {
     (
         [],
         [$($name:ident),* $(,)?],
-        [$([$($trait:path),* $(,)?]),* $(,)?],
+        [$([$($trait:tt),* $(,)?]),* $(,)?],
         [$($parameter:ty),* $(,)?],
         [$($argument:item),* $(,)?],
         [$($type:ty),* $(,)?]
