@@ -66,8 +66,8 @@ macro_rules! impl_function_combination {
             [
                 macro_rules! $x {
                     ($arguments:ident, $iter:ident) => {
-                        $arguments[$iter.next().unwrap_or_default()]
-                            .downcast_ref::<$x>()?
+                        &*($arguments[$iter.next().unwrap_or_default()]
+                            .downcast_ref::<$x>()?)
                     };
                 },
                 $($argument),*
@@ -82,8 +82,8 @@ macro_rules! impl_function_combination {
             [
                 macro_rules! $x {
                     ($arguments:ident, $iter:ident) => {
-                        $arguments[$iter.next().unwrap_or_default()]
-                            .downcast_mut::<$x>()?
+                        &mut *($arguments[$iter.next().unwrap_or_default()]
+                            .downcast_mut::<$x>()?)
                     };
                 },
                 $($argument),*
