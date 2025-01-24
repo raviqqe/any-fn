@@ -41,7 +41,7 @@ fn foo(x: usize, y: &usize, z: &mut usize) {
 
 let x = value(0usize);
 
-r#fn::<(_, Ref<usize>, _), _>(foo)
+r#fn::<(_, Ref<_>, _), _>(foo)
     .call(&[&value(40usize), &value(2usize), &x])
     .unwrap();
 
