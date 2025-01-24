@@ -13,7 +13,7 @@ pub struct AnyFn<'a> {
 
 impl<'a> AnyFn<'a> {
     /// Creates a dynamically-typed function.
-    pub(crate) fn new(arity: usize, function: BoxedFunction<'a>) -> Self {
+    pub(crate) fn new(parameters: Vec<TypeId>, value: TypeId, function: BoxedFunction<'a>) -> Self {
         Self { arity, function }
     }
 
