@@ -1,7 +1,7 @@
 use crate::AnyFnError;
 use alloc::boxed::Box;
 use core::{
-    any::Any,
+    any::{Any, TypeId},
     cell::{Ref, RefCell, RefMut},
 };
 
@@ -12,6 +12,13 @@ impl Value {
     /// Creates a value.
     pub fn new(value: impl Any) -> Self {
         Self(RefCell::new(Box::new(value)))
+    }
+
+    /// Returns a type ID.
+    pub fn type_id(&self) -> TypeId {
+        let cell = self.0.borrow();
+
+        cell.type_id()
     }
 
     /// Downcasts a value.
