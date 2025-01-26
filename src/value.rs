@@ -16,7 +16,7 @@ impl Value {
 
     /// Returns a type ID.
     pub fn type_id(&self) -> Result<TypeId, AnyFnError> {
-        Ok(self.0.try_borrow()?.type_id())
+        Ok((*self.0.try_borrow()?).type_id())
     }
 
     /// Downcasts a value.
