@@ -45,7 +45,7 @@ r#fn::<(_, Ref<_>, _), _>(foo)
     .call(&[&value(40usize), &value(2usize), &x])
     .unwrap();
 
-assert_eq!(*x.downcast::<usize>().unwrap(), 42);
+assert_eq!(x.downcast::<usize>().unwrap(), 42);
 ```
 
 ## License

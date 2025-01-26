@@ -57,7 +57,7 @@ mod tests {
         }
 
         assert_eq!(
-            *foo.into_any_fn()
+            foo.into_any_fn()
                 .call(&[&value(1usize), &value(2usize)])
                 .unwrap()
                 .downcast::<usize>()
