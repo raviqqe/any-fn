@@ -15,10 +15,10 @@ impl Value {
     }
 
     /// Returns a type ID.
-    pub fn type_id(&self) -> TypeId {
-        let cell = self.0.borrow();
+    pub fn type_id(&self) -> Result<TypeId, AnyFnError> {
+        let cell = self.0.try_borrow()?;
 
-        cell.type_id()
+        Ok(cell.type_id())
     }
 
     /// Downcasts a value.
