@@ -15,11 +15,12 @@ impl Value {
     }
 
     /// Downcasts a value.
-    pub fn downcast<T: Any>(self) -> Result<Box<T>, AnyFnError> {
+    pub fn downcast<T: Any>(self) -> Result<T, AnyFnError> {
         self.0
             .into_inner()
             .downcast()
             .map_err(|_| AnyFnError::Downcast)
+            .map(|value| *value)
     }
 
     /// Downcasts a value into a reference.
