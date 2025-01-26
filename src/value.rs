@@ -16,7 +16,7 @@ impl Value {
 
     /// Returns a type ID.
     pub fn type_id(&self) -> Result<TypeId, AnyFnError> {
-        Ok((*self.0.try_borrow()?).type_id())
+        Ok((**self.0.try_borrow()?).type_id())
     }
 
     /// Downcasts a value.
@@ -38,5 +38,18 @@ impl Value {
     pub fn downcast_mut<T: Any>(&self) -> Result<RefMut<T>, AnyFnError> {
         RefMut::filter_map(self.0.try_borrow_mut()?, |value| value.downcast_mut())
             .map_err(|_| AnyFnError::Downcast)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn type_id() {
+        assert_eq!(
+            Value::new(42usize).type_id().unwrap(),
+            TypeId::of::<usize>()
+        );
     }
 }
