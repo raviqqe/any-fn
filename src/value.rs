@@ -29,13 +29,13 @@ impl Value {
     }
 
     /// Downcasts a value into a reference.
-    pub fn downcast_ref<T: Any>(&self) -> Result<Ref<T>, AnyFnError> {
+    pub fn downcast_ref<T: Any>(&self) -> Result<Ref<'_, T>, AnyFnError> {
         Ref::filter_map(self.0.try_borrow()?, |value| value.downcast_ref())
             .map_err(|_| AnyFnError::Downcast)
     }
 
     /// Downcasts a value into a mutable reference.
-    pub fn downcast_mut<T: Any>(&self) -> Result<RefMut<T>, AnyFnError> {
+    pub fn downcast_mut<T: Any>(&self) -> Result<RefMut<'_, T>, AnyFnError> {
         RefMut::filter_map(self.0.try_borrow_mut()?, |value| value.downcast_mut())
             .map_err(|_| AnyFnError::Downcast)
     }
