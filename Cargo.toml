@@ -1,10 +1,10 @@
 [package]
 name = "any-fn"
+version = "0.6.2"
+edition = "2024"
 description = "Dynamically-typed functions to represent any functions in Rust"
-version = "0.6.1"
-edition = "2021"
-license-file = "./LICENSE"
 repository = "https://github.com/raviqqe/any-fn"
+license-file = "./LICENSE"
 
 [dependencies]
 
