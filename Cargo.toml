@@ -1,6 +1,6 @@
 [package]
 name = "any-fn"
-version = "0.6.2"
+version = "0.6.3"
 edition = "2024"
 description = "Dynamically-typed functions to represent any functions in Rust"
 repository = "https://github.com/raviqqe/any-fn"
